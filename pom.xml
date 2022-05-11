@@ -1,136 +1,71 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.matsim.vsp</groupId>
-	<artifactId>vsp-playgrounds</artifactId>
-	<packaging>pom</packaging>
-	<version>14.0-SNAPSHOT</version>
-	<name>VSP-Playgrounds</name>
+	<groupId>org.matsim.vsp.vsp-playgrounds</groupId>
+	<artifactId>vsptelematics</artifactId>
+	<name>vsptelematics</name>
+	<description>matsim code for the telematics lecture at vsp</description>
+	<version>0.0.1-SNAPSHOT</version>
 
-	<scm>
-		<url>https://github.com/matsim-vsp/vsp-playgrounds.git</url>
-		<connection>scm:git:git://github.com/matsim-vsp/vsp-playgrounds.git</connection>
-		<developerConnection>scm:git:git@github.com:matsim-vsp/vsp-playgrounds.git</developerConnection>
-	</scm>
+	<properties>
+		<!-- release> -->
+		<matsim.version>14.0</matsim.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+	</properties>
+
 	<repositories>
-		<!-- Repository for MATSim releases (MATSim is not on Maven central) -->
+		<!--Note that in general repositories are not transitive, so they need to be repeated at every level where needed.-->
 		<repository>
+			<!-- Geotools is not on Maven central -->
+			<id>osgeo</id>
+			<name>Geotools repository</name>
+			<!-- <url>http://download.osgeo.org/webdav/geotools</url> -->
+			<url>https://repo.osgeo.org/repository/release/</url>
+		</repository>
+		<repository>
+			<!-- Repository for MATSim (MATSim is not on Maven central, releases and snapshots) -->
 			<id>matsim</id>
 			<url>https://repo.matsim.org/repository/matsim</url>
 		</repository>
-		<repository>
-			<id>ojo-snapshots</id>
-			<url>http://oss.jfrog.org/libs-snapshot</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>osgeo</id>
-			<name>OSGeo Release Repository</name>
- 			<url>https://repo.osgeo.org/repository/release/</url>
- 			<snapshots>
- 				<enabled>false</enabled>
- 			</snapshots>
- 			<releases>
- 				<enabled>true</enabled>
- 			</releases>
-		</repository>
-		<repository>
-			<!-- for older jsprit versions. please migrate to new, they are on Maven central -->
-			<id>jsprit-releases</id>
-			<url>https://github.com/jsprit/mvn-rep/raw/master/releases</url>
-		</repository>
-		<!--commenting following to get rid of warnings, (I think) it is related to https://matsim.atlassian.net/browse/MATSIM-783 Amit Feb'18-->
-		<!--<repository>-->
-		<!--&lt;!&ndash; Some custom-hosted dependencies on our web page, maintained by mrieser &ndash;&gt;-->
-		<!--<id>matsim-custom</id>-->
-		<!--<url>http://matsim.org/m2repo</url>-->
-		<!--</repository>-->
-		<repository>
-			<id>ch.sbb</id>
-			<url>https://schweizerischebundesbahnen.bintray.com/simba.mvn</url>
-		</repository>
+		<!-- for dependencies of osm-network-reader -->
 		<repository>
 			<id>topobyte</id>
-			<url>https://mvn.topobyte.de/</url>
+			<url>https://mvn.topobyte.de</url>
 		</repository>
+		<!-- for dependencies of osm-network-reader -->
 		<repository>
 			<id>slimjars</id>
-			<url>http://mvn.slimjars.com/</url>
+			<url>https://mvn.slimjars.com</url>
 		</repository>
 	</repositories>
+
 	<build>
-		<extensions>
-			<extension>
-				<groupId>io.packagecloud.maven.wagon</groupId>
-				<artifactId>maven-packagecloud-wagon</artifactId>
-				<version>0.0.6</version>
-			</extension>
-		</extensions>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<source>11</source>
-					<target>11</target>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.22.0</version>
 				<configuration>
-					<excludes>
-						<exclude>**/*$*</exclude> <!-- exclude all inner classes -->
-						<exclude>**/*PerformanceTest.java</exclude>
-					</excludes>
-					<forkMode>once</forkMode>
-					<argLine>-Xmx400m -Djava.awt.headless=true</argLine>
-					<enableAssertions>false</enableAssertions> <!-- this should be set to true, but we still have some tests that don't work otherwise... -->
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>playground.vsptelematics.ha1.UE1GUI</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.22.0</version>
 				<executions>
 					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
 						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.0</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<doCheck>false</doCheck>
-					<doUpdate>false</doUpdate>
-					<revisionOnScmFailure>unknown</revisionOnScmFailure>
-					<timestampFormat>{0,date,yyyy-MM-dd HH:mm:ss}</timestampFormat>
-				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -142,215 +77,67 @@
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.3.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-source-plugin</artifactId>
+					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.2.1</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
 
-	<modules>
-		<module>dziemke</module>
-		<module>gleich</module>
-		<module>gunnar</module>
-		<module>ikaddoura</module>
-		<module>kai</module>
-		<module>kairuns</module>
-		<module>kturner</module>
-		<module>lu</module>
-		<module>stockholm</module>
-		<module>tthunig</module>
-		<module>vspshk</module>
-		<module>vsptelematics</module>
-	</modules>
-
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-assembly-plugin -->
 		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-assembly-plugin</artifactId>
-			<version>3.3.0</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math</artifactId>
+			<version>2.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.0.0</version>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>roadpricing</artifactId>
+			<version>${matsim.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.codehaus.mojo/findbugs-maven-plugin -->
 		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>findbugs-maven-plugin</artifactId>
-			<version>3.0.5</version>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>otfvis</artifactId>
+			<version>${matsim.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.codehaus.mojo/javancss-maven-plugin -->
 		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>javancss-maven-plugin</artifactId>
-			<version>2.1</version>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>signals</artifactId>
+			<version>${matsim.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-pmd-plugin -->
 		<dependency>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-pmd-plugin</artifactId>
-			<version>3.14.0</version>
+			<groupId>org.matsim.contrib</groupId>
+			<artifactId>parking</artifactId>
+			<version>${matsim.version}</version>
+		</dependency>
+
+		<!--	i needed the following three dependencies to let the simulation of parking search run completely when using the GUI on my machine..-->
+		<!--	(although, i was using java8...)-->
+		<!--	however, this might be unnecessary when using java8. cut out if problems occur. tschlenther, june 2019-->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<!-- JAXB needs javax.activation module (jdk9) -->
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>javax.activation-api</artifactId>
+			<version>1.2.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.8.1</version>
 		</dependency>
-		<dependency>
-			<groupId>org.matsim</groupId>
-			<artifactId>matsim</artifactId>
-			<version>14.0-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.matsim</groupId>
-			<artifactId>matsim</artifactId>
-			<version>14.0-SNAPSHOT</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.matsim</groupId>
-			<artifactId>matsim-examples</artifactId>
-			<version>14.0-SNAPSHOT</version>
-			<scope>test</scope>
-		</dependency>
+
 	</dependencies>
-
-	<profiles>
-		<profile>
-			<id>hudson</id>
-			<build>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>cobertura-maven-plugin</artifactId>
-							<version>2.7</version>
-							<configuration>
-								<formats>
-									<format>xml</format>
-								</formats>
-							</configuration>
-						</plugin>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>findbugs-maven-plugin</artifactId>
-							<version>3.0.0</version>
-							<configuration>
-								<effort>Max</effort>
-								<threshold>Low</threshold>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-			<reporting>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-pmd-plugin</artifactId>
-						<version>3.14.0</version>
-						<configuration>
-							<targetJdk>1.7</targetJdk>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>javancss-maven-plugin</artifactId>
-						<version>2.1</version>
-					</plugin>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>findbugs-maven-plugin</artifactId>
-						<version>3.0.5</version>
-						<configuration>
-							<effort>Max</effort>
-							<threshold>Low</threshold>
-						</configuration>
-					</plugin>
-				</plugins>
-			</reporting>
-		</profile>
-		
-		<profile>
-			<id>release</id>
-			<build>
-				<defaultGoal>assembly:assembly</defaultGoal>
-				<pluginManagement>
-					<plugins>
-						<plugin>
-							<artifactId>maven-assembly-plugin</artifactId>
-							<configuration>
-								<descriptors>
-									<descriptor>src/main/assembly/assembly-release.xml</descriptor>
-								</descriptors>
-							</configuration>
-						</plugin>
-						<plugin>
-							<artifactId>maven-jar-plugin</artifactId>
-							<configuration>
-								<archive>
-									<manifest>
-										<addClasspath>true</addClasspath>
-										<classpathPrefix>libs/</classpathPrefix>
-									</manifest>
-								</archive>
-							</configuration>
-						</plugin>
-					</plugins>
-				</pluginManagement>
-			</build>
-		</profile>
-	</profiles>
-	
-	<distributionManagement>
-		<repository>
-			<id>packagecloud-matsim-vsp</id>
-			<url>packagecloud+https://packagecloud.io/matsim-vsp/vsp-playgrounds</url>
-		</repository>
-		<snapshotRepository>
-			<id>packagecloud-matsim-vsp</id>
-			<url>packagecloud+https://packagecloud.io/matsim-vsp/vsp-playgrounds</url>
-		</snapshotRepository>
-	</distributionManagement>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.graphstream</groupId>
-				<artifactId>gs-ui</artifactId>
-				<version>1.3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.graphstream</groupId>
-				<artifactId>gs-core</artifactId>
-				<version>1.3</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.commons</groupId>
-				<artifactId>commons-math</artifactId>
-				<version>2.2</version>
-				<type>jar</type>
-				<scope>compile</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
 </project>
