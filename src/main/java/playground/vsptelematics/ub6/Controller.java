@@ -56,9 +56,9 @@ public class Controller {
 		
 		System.out.println((new File("blub.txt")).getAbsolutePath()); // /Users/gleich/git/matsim/playgrounds/vsptelematics/blub.txt
 
-		c.getConfig().controler().setOverwriteFileSetting(
+		c.getConfig().controller().setOverwriteFileSetting(
 				OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
-		c.getConfig().controler().setCreateGraphs(false);
+		c.getConfig().controller().setCreateGraphs(false);
 		c.addOverridingModule(new AbstractModule() {
 			@Override
 			public void install() {

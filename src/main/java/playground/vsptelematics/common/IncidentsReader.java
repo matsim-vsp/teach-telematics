@@ -30,7 +30,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.network.Network;
@@ -48,7 +49,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class IncidentsReader extends DefaultHandler {
 	
-	private static final Logger logger = Logger.getLogger(IncidentsReader.class);
+	private static final Logger logger = LogManager.getLogger(IncidentsReader.class );
 
 	private static final String INCIDENT_TAG = "incident";
 	

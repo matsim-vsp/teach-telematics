@@ -19,14 +19,8 @@
  * *********************************************************************** */
 package playground.vsptelematics.ha2;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.LinkLeaveEvent;
@@ -39,13 +33,20 @@ import org.matsim.core.events.algorithms.Vehicle2DriverEventHandler;
 import org.matsim.core.mobsim.framework.events.MobsimAfterSimStepEvent;
 import org.matsim.core.utils.io.IOUtils;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author dgrether
  * 
  */
 public class ReactiveGuidance extends AbstractGuidance implements Guidance, VehicleEntersTrafficEventHandler, VehicleLeavesTrafficEventHandler {
 
-	private static final Logger log = Logger.getLogger(ReactiveGuidance.class);
+	private static final Logger log = LogManager.getLogger(ReactiveGuidance.class );
 
 	private double[] ttRoute1;
 	private double[] ttRoute2;

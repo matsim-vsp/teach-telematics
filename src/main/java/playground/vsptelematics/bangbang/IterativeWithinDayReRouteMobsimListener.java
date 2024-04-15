@@ -20,8 +20,7 @@
 
 package playground.vsptelematics.bangbang;
 
-import java.util.*;
-
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
@@ -42,6 +41,7 @@ import org.matsim.core.mobsim.qsim.agents.WithinDayAgentUtils;
 import org.matsim.core.mobsim.qsim.interfaces.MobsimVehicle;
 import org.matsim.core.mobsim.qsim.interfaces.Netsim;
 import org.matsim.core.mobsim.qsim.interfaces.NetsimLink;
+import org.matsim.core.network.NetworkUtils;
 import org.matsim.core.population.routes.NetworkRoute;
 import org.matsim.core.router.costcalculators.TravelDisutilityFactory;
 import org.matsim.core.router.util.LeastCostPathCalculator;
@@ -49,17 +49,17 @@ import org.matsim.core.router.util.LeastCostPathCalculatorFactory;
 import org.matsim.core.router.util.TravelDisutility;
 import org.matsim.core.router.util.TravelTime;
 import org.matsim.withinday.utils.EditRoutes;
-
-import com.google.inject.Inject;
-
 import playground.vsptelematics.bangbang.KNAccidentScenario.MyIterationCounter;
+
+import java.util.*;
 
 /**
  * @author nagel
  *
  */
-class WithinDayReRouteMobsimListener implements MobsimBeforeSimStepListener, MobsimInitializedListener {
-	private static final Logger log = LogManager.getLogger(WithinDayReRouteMobsimListener.class );
+class IterativeWithinDayReRouteMobsimListener implements MobsimBeforeSimStepListener, MobsimInitializedListener {
+	private static final Logger log = LogManager.getLogger( IterativeWithinDayReRouteMobsimListener.class );
+
 	@Inject private Scenario scenario;
 	@Inject private LeastCostPathCalculatorFactory pathAlgoFactory;
 	@Inject private TravelTime travelTime;
@@ -67,21 +67,14 @@ class WithinDayReRouteMobsimListener implements MobsimBeforeSimStepListener, Mob
 	@Inject private MyIterationCounter iterationCounter;
 	
 	private boolean init = true ;
-	
 	private EditRoutes editRoutes ;
-
-	private double replanningProba = 1.0 ;
-	public void setReplanningProba(double replanningProba) {
-		this.replanningProba = replanningProba;
-	}
 
 	@Override public void notifyMobsimInitialized( MobsimInitializedEvent e ){
 		log.warn("####### WE ARE AT ITERATION=" + this.iterationCounter.getIteration() + " #####");
 	}
 
+	@Override public void notifyMobsimBeforeSimStep(@SuppressWarnings("rawtypes") MobsimBeforeSimStepEvent event) {
 
-	@Override
-	public void notifyMobsimBeforeSimStep(@SuppressWarnings("rawtypes") MobsimBeforeSimStepEvent event) {
 		if ( init ){
 			init= false ;
 			TravelDisutility travelDisutility = travelDisutilityFactories.get(TransportMode.car).createTravelDisutility( travelTime ) ;
@@ -89,86 +82,31 @@ class WithinDayReRouteMobsimListener implements MobsimBeforeSimStepListener, Mob
 			PopulationFactory pf = scenario.getPopulation().getFactory() ;
 			this.editRoutes = new EditRoutes( scenario.getNetwork(), pathAlgo, pf ) ;
 		}
-		
-		Collection<MobsimAgent> agentsToReplan = getAgentsToReplan( (Netsim) event.getQueueSimulation(), replanningProba);
-		
-		for (MobsimAgent ma : agentsToReplan) {
-			doReplanning(ma, (Netsim) event.getQueueSimulation(), editRoutes );
-		}
-	}
-	
-	private static int cnt2 = 0 ;
 
+
+		if ( event.getSimulationTime() == 8*3600+5*60 ){
+			double replanningProba = 0.1;
+			log.warn("going through " + replanningProba *100 + "% of all agents and give the route that would have been optimal in prev iteration" );
+			for( MobsimAgent ma : getAgentsToReplan( (Netsim) event.getQueueSimulation(), replanningProba ) ){
+				WithinDayReRouteMobsimListener.doReplanning( ma, (Netsim) event.getQueueSimulation(), this.editRoutes );
+			}
+		}
+		// (this can't be in the "initialized" mobsim listener since we want to do it in the middle of the mobsim)
+	}
 	static List<MobsimAgent> getAgentsToReplan(Netsim mobsim, double replanningProba) {
 
 		List<MobsimAgent> set = new ArrayList<>();
 
-		final double now = mobsim.getSimTimer().getTimeOfDay();
-		if ( now < 8.*3600. || now > 10.*3600. || Math.floor(now) % 10 != 0 ) {
-			return set;
-		}
-
-		// find agents that are on the "interesting" links:
-		for ( Id<Link> linkId : KNAccidentScenario.replanningLinkIds ) {
-			NetsimLink link = mobsim.getNetsimNetwork().getNetsimLink( linkId ) ;
+		// find all agents:
+		for( NetsimLink link : mobsim.getNetsimNetwork().getNetsimLinks().values() ){
 			for (MobsimVehicle vehicle : link.getAllNonParkedVehicles()) {
 				MobsimDriverAgent agent=vehicle.getDriver();
-				if ( KNAccidentScenario.replanningLinkIds.contains( agent.getCurrentLinkId() ) ) {
-					//					System.out.println("found agent");
-					if ( cnt2==0 ) {
-						log.warn("only replanning with proba=" + replanningProba + "!" );
-						cnt2++ ;
-					}
-					if ( MatsimRandom.getRandom().nextDouble() < replanningProba) {
-						set.add(agent);
-					}
+				if ( MatsimRandom.getRandom().nextDouble() < replanningProba) {
+					set.add(agent);
 				}
 			}
 		}
 
 		return set;
-
 	}
-	
-	private static int cnt = 0 ;
-
-	static void doReplanning( MobsimAgent agent, Netsim netsim, EditRoutes editRoutes ) {
-		double now = netsim.getSimTimer().getTimeOfDay() ;
-
-		Plan plan = WithinDayAgentUtils.getModifiablePlan( agent ) ; 
-		
-		if ( !WithinDayAgentUtils.isOnReplannableCarLeg(agent) ) {
-			return;
-		}
-
-		final Integer planElementsIndex = WithinDayAgentUtils.getCurrentPlanElementIndex(agent);
-
-		// ---
-
-		final Leg leg = (Leg) plan.getPlanElements().get(planElementsIndex);
-		
-		// for vis:
-		List<Id<Link>> oldLinkIds = new ArrayList<>( ((NetworkRoute) leg.getRoute()).getLinkIds() ) ; // forces a copy, which I need later
-
-		// "real" action:
-		final int currentLinkIndex = WithinDayAgentUtils.getCurrentRouteLinkIdIndex(agent);
-		editRoutes.replanCurrentLegRoute(leg, plan.getPerson(), currentLinkIndex, now ) ;
-		
-		// for vis:
-		ArrayList<Id<Link>> currentLinkIds = new ArrayList<>( ((NetworkRoute) leg.getRoute()).getLinkIds() ) ;
-		if ( !Arrays.deepEquals(oldLinkIds.toArray(), currentLinkIds.toArray()) ) {
-			if ( cnt < 10 ) {
-				log.warn("modified route");
-				cnt++ ;
-			}
-			netsim.getScenario().getPopulation().getPersons().get(agent.getId()).getAttributes().putAttribute("marker", true ) ;
-		}
-
-		// ---
-
-		// finally reset the cached Values of the PersonAgent - they may have changed!
-		WithinDayAgentUtils.resetCaches(agent);
-
-	}
-
 }

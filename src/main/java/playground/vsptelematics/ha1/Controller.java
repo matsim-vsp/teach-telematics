@@ -59,8 +59,8 @@ public class Controller {
 					new SignalsDataLoader(config).loadSignalsData());
 		}
 		Controler c = new Controler(scenario);
-		c.getConfig().controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
-		c.getConfig().controler().setCreateGraphs(false);
+		c.getConfig().controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
+		c.getConfig().controller().setCreateGraphs(false);
 		// add the signals module
 		new Signals.Configurator( c ) ;
 		

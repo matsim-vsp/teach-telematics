@@ -25,8 +25,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.matsim.api.core.v01.Id;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
@@ -59,7 +60,7 @@ import org.matsim.vis.snapshotwriters.AgentSnapshotInfo;
  */
 class WithinDayBangBangMobsimListener implements MobsimBeforeSimStepListener {
 
-	private static final Logger log = Logger.getLogger("dummy");
+	private static final Logger log = LogManager.getLogger("dummy" );
 
 	private final Scenario scenario;
 
@@ -136,7 +137,7 @@ class WithinDayBangBangMobsimListener implements MobsimBeforeSimStepListener {
 		
 		double ttimeThroughAccident = calcTtime(now, this.originalLinks) ;
 		double ttimeDetour = calcTtime( now, this.alternativeLinks ) ;
-		Logger.getLogger( this.getClass() ).warn( "ttimeOrig=" + ttimeThroughAccident + "; ttimeDetour=" + ttimeDetour );
+		LogManager.getLogger( this.getClass() ).warn( "ttimeOrig=" + ttimeThroughAccident + "; ttimeDetour=" + ttimeDetour );
 
 		for (MobsimAgent ma : agentsToReplan) {
 			doReplanning(ma, ttimeThroughAccident, ttimeDetour);

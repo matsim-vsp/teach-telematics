@@ -34,8 +34,8 @@ public class ControllerWithOtfvis {
 					new SignalsDataLoader(config).loadSignalsData());
 		}
 		Controler c = new Controler(scenario);
-		c.getConfig().controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
-		c.getConfig().controler().setCreateGraphs(false);
+		c.getConfig().controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
+		c.getConfig().controller().setCreateGraphs(false);
 		// add the signals module if signal systems are used
 		if (signalsConfigGroup.isUseSignalSystems()) {
 //			c.addOverridingModule(new SignalsModule());

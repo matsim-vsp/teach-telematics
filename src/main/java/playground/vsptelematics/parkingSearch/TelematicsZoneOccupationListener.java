@@ -21,7 +21,8 @@
 package playground.vsptelematics.parkingSearch;
 
 import com.google.inject.Inject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.contrib.parking.parkingsearch.evaluation.ParkingTuple;
 import org.matsim.contrib.parking.parkingsearch.evaluation.ZoneParkingOccupationListener;
 import org.matsim.contrib.parking.parkingsearch.manager.ParkingSearchManager;
@@ -44,7 +45,7 @@ import java.util.TreeSet;
 public class TelematicsZoneOccupationListener implements MobsimBeforeCleanupListener, MobsimAfterSimStepListener {
 
     private final org.matsim.contrib.parking.parkingsearch.manager.ZoneParkingManager zoneManager;
-    private Logger log = Logger.getLogger(ZoneParkingOccupationListener.class);
+    private Logger log = LogManager.getLogger(ZoneParkingOccupationListener.class );
     private HashMap<String, TreeSet<ParkingTuple>> zoneOccupationPerTime;
     private MatsimServices services;
     int iteration;
@@ -57,7 +58,7 @@ public class TelematicsZoneOccupationListener implements MobsimBeforeCleanupList
     @Inject
     public TelematicsZoneOccupationListener(ParkingSearchManager manager, MatsimServices services, Config config) {
         this.zoneManager = (ZoneParkingManager) manager;
-        iteration = config.controler().getFirstIteration();
+        iteration = config.controller().getFirstIteration();
         this.services = services;
         this.zoneOccupationPerTime = new HashMap<>();
         for(String zone : zoneManager.getZones()){

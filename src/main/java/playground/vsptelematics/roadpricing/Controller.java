@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.network.Link;
@@ -54,7 +55,7 @@ import playground.vsptelematics.ha1.RouteTTObserver;
  *
  */
 public class Controller {
-	private static final Logger log = Logger.getLogger(Controller.class);
+	private static final Logger log = LogManager.getLogger(Controller.class );
 	TelematicsConfigGroup telematicsConfigGroup;
 	
 	public Controller(String[] args){
@@ -62,8 +63,8 @@ public class Controller {
 		Scenario scenario = ScenarioUtils.loadScenario( config ) ;
 		Controler c = new Controler(scenario);
 		telematicsConfigGroup = ConfigUtils.addOrGetModule(config, TelematicsConfigGroup.GROUPNAME, TelematicsConfigGroup.class);
-		c.getConfig().controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
-		c.getConfig().controler().setCreateGraphs(false);
+		c.getConfig().controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
+		c.getConfig().controller().setCreateGraphs(false);
         addListener(c);
 		c.run();
 	}

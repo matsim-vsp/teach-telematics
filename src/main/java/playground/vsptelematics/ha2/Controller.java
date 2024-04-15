@@ -36,8 +36,8 @@ import playground.vsptelematics.common.TelematicsConfigGroup;
  */
 public class Controller {
 	public static void run(Config config){
-		config.controler().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
-		config.controler().setCreateGraphs(false);
+		config.controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.overwriteExistingFiles);
+		config.controller().setCreateGraphs(false);
 		ConfigUtils.addOrGetModule(config,TelematicsConfigGroup.GROUPNAME, TelematicsConfigGroup.class);
 		
 		Controler c = new Controler(config);

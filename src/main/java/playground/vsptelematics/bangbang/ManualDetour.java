@@ -25,7 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
@@ -58,9 +59,12 @@ import com.google.inject.Inject;
  */
 public class ManualDetour implements MobsimBeforeSimStepListener {
 
-	public static final Logger log = Logger.getLogger("dummy");
+	public static final Logger log = LogManager.getLogger("dummy" );
+	private final double timeFractionForDetour;
 
-	private final Scenario scenario;
+	@Inject private Scenario scenario;
+
+	@Inject private LeastCostPathCalculatorFactory leastCostPathCalculatorFactory;
 
 	private List<Id<Link>> alternativeLinks;
 	
@@ -69,7 +73,7 @@ public class ManualDetour implements MobsimBeforeSimStepListener {
 	 */
 	private static final Id<Link> mergeLinkId = Id.createLinkId("4706699_26662459_26662476");
 
-	private class AvoidAccidentTravelTimeAndDisutility implements TravelTime, TravelDisutility {
+	private static class AvoidAccidentTravelTimeAndDisutility implements TravelTime, TravelDisutility {
 		FreespeedTravelTimeAndDisutility delegate = new FreespeedTravelTimeAndDisutility(-1.0, 0.0, 0.0);
 		@Override public double getLinkTravelDisutility(Link link, double time, Person person, Vehicle vehicle) {
 			if ( KNAccidentScenario.accidentLinkId.equals( link.getId() ) ) {
@@ -91,21 +95,18 @@ public class ManualDetour implements MobsimBeforeSimStepListener {
 	}
 
 	@Inject
-	ManualDetour(Scenario scenario, LeastCostPathCalculatorFactory pathAlgoFactory ) {
-		this.scenario = scenario ;
-
-		alternativeLinks = computeAlternativeRouteLinkIds(pathAlgoFactory) ;
-
+	ManualDetour( double timeFractionForDetour ) {
+		this.timeFractionForDetour = timeFractionForDetour;
 	}
 	
 	/**
 	 * compute link IDs for alternative route
 	 */
-	private List<Id<Link>> computeAlternativeRouteLinkIds(LeastCostPathCalculatorFactory pathAlgoFactory) {
+	private void computeAlternativeRouteLinkIds() {
 
 		// make accident link very expensive:
-		AvoidAccidentTravelTimeAndDisutility fff = new AvoidAccidentTravelTimeAndDisutility() ;
-		LeastCostPathCalculator routeAlgo = pathAlgoFactory.createPathCalculator( scenario.getNetwork(), fff, fff);
+		AvoidAccidentTravelTimeAndDisutility fff = new AvoidAccidentTravelTimeAndDisutility();
+		LeastCostPathCalculator routeAlgo = this.leastCostPathCalculatorFactory.createPathCalculator( scenario.getNetwork(), fff, fff);
 		final RoutingModule routingModule = DefaultRoutingModules.createPureNetworkRouter(TransportMode.car, scenario.getPopulation().getFactory(), 
 				scenario.getNetwork(), routeAlgo);
 		// (yy could probably use the "computer science" algorithm directly. kai, apr'16)
@@ -124,13 +125,13 @@ public class ManualDetour implements MobsimBeforeSimStepListener {
 			final Leg leg = (Leg) routingModule.calcRoute( request ).get(0);
 			links = ((NetworkRoute)leg.getRoute()).getLinkIds() ;
 		}
-		return links;
+		this.alternativeLinks = links;
 	}
 
 	@Override
 	public void notifyMobsimBeforeSimStep(@SuppressWarnings("rawtypes") MobsimBeforeSimStepEvent event) {
 		double now = event.getSimulationTime() ;
-		double duration = 9*60 ;
+		double duration = this.timeFractionForDetour * 10 * 60.;
 		if (                                                              now < 8.*3600+10*60 ) return ;
 		if ( 8.*3600 + 10*60 + duration < now && now < 8.*3600+20*60 ) return ;
 		if ( 8.*3600 + 20*60 + duration < now && now < 8.*3600+30*60 ) return ;
@@ -147,6 +148,9 @@ public class ManualDetour implements MobsimBeforeSimStepListener {
 	}
 
 	private void doReplanning(MobsimAgent agent ) {
+		if ( this.alternativeLinks==null ) {
+			this.computeAlternativeRouteLinkIds();
+		}
 		
 		Gbl.assertIf( WithinDayAgentUtils.isOnReplannableCarLeg(agent) ) ;
 		

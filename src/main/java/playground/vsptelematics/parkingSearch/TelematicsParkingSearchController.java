@@ -100,14 +100,14 @@ public class TelematicsParkingSearchController {
         //get the parking search config group to set some parameters, like agent's search strategy or average parking slot length
         ParkingSearchConfigGroup configGroup = ConfigUtils.addOrGetModule(config, ParkingSearchConfigGroup.class);
 
-        config.controler().setLastIteration(1);
+        config.controller().setLastIteration(1);
 
         final Scenario scenario = ScenarioUtils.loadScenario(config);
         createPop(scenario);
         Controler controler = new Controler(scenario);
         config.qsim().setSnapshotStyle(QSimConfigGroup.SnapshotStyle.withHoles);
 
-        config.controler().setCreateGraphs(false);
+        config.controller().setCreateGraphs(false);
 
         controler.addOverridingModule(new AbstractModule() {
 

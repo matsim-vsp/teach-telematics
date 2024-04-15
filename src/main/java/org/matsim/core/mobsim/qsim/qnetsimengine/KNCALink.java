@@ -75,7 +75,7 @@
 // *
 // */
 //public class KNCALink {
-//	private static Logger log = Logger.getLogger( KNCALink.class ) ;
+//	private static Logger log = LogManager.getLogger( KNCALink.class ) ;
 //
 //	private static int LEN = (int) (10000/7.5) ;
 //
@@ -484,12 +484,12 @@
 //
 //		Config config = ConfigUtils.createConfig() ;
 //
-//		config.controler().setLastIteration(0);
-//		config.controler().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
+//		config.controller().setLastIteration(0);
+//		config.controller().setOverwriteFileSetting(OverwriteFileSetting.deleteDirectoryIfExists);
 //		Collection<SnapshotFormat> sf = new ArrayList<>() ;
 //		sf.add( SnapshotFormat.otfvis );
-//		config.controler().setSnapshotFormat(sf);
-//		config.controler().setWriteSnapshotsInterval(1);
+//		config.controller().setSnapshotFormat(sf);
+//		config.controller().setWriteSnapshotsInterval(1);
 //
 //		config.qsim().setStartTime(0);
 //		config.qsim().setSimStarttimeInterpretation( StarttimeInterpretation.onlyUseStarttime );

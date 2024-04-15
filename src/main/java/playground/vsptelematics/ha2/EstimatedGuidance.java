@@ -24,7 +24,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.LinkLeaveEvent;
@@ -42,7 +43,7 @@ import org.matsim.vehicles.Vehicle;
 public class EstimatedGuidance extends AbstractGuidance implements Guidance {
 
 	
-	private static final Logger log = Logger.getLogger(EstimatedGuidance.class);
+	private static final Logger log = LogManager.getLogger(EstimatedGuidance.class );
 	
 	private Map<Id<Vehicle>, LinkEnterEvent> vehicleIdLinkEnterEventMap = new HashMap<>();
 	private double vehOn1, vehOn2;
